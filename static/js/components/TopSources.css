@@ -10,8 +10,9 @@
   transform: scale(2.0);
 }
 
-.div {
+.topSourcesContainer {
   display: flex;
+  flex-direction: column;
   border-style: solid;
   border-width: 1px;
   border-color: #DDD;
@@ -21,9 +22,12 @@
   padding-left: 10px;
 }
 
-.ul {
+.topSourceList {
    display: flex;
    align-items: center;
    list-style-type: none;
 }
 
+.topSource {
+margin: 10px;
+}
