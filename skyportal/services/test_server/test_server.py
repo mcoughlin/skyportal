@@ -1,4 +1,5 @@
 import glob
+import json
 import datetime
 import re
 import os
@@ -12,6 +13,14 @@ import requests
 
 from baselayer.app.env import load_env
 from baselayer.log import make_log
+
+
+def get_cache_file_static():
+    """
+    Helper function to get the path to the VCR cache file for requests
+    that must be updated by hand due to credentials.
+    """
+    return "data/tests/test_server_recordings_static.yaml"
 
 
 def get_cache_file():
@@ -79,6 +88,18 @@ def lt_request_matcher(r1, r2):
     )
 
 
+def lco_request_matcher(r1, r2):
+    """
+    Helper function to help determine if two requests to the LCO API are equivalent
+    """
+
+    # A request matches an LCO request if the URI and method matches
+    assert (
+        r1.uri.replace(":443", "") == r2.uri.replace(":443", "")
+        and r1.method == r2.method
+    )
+
+
 class TestRouteHandler(tornado.web.RequestHandler):
     """
     This handler intercepts calls coming from SkyPortal API handlers which make
@@ -90,7 +111,11 @@ class TestRouteHandler(tornado.web.RequestHandler):
 
     def get(self):
         is_wsdl = self.get_query_argument('wsdl', None)
-        cache = get_cache_file()
+        if self.request.uri == "/api/requestgroups/":
+            cache = get_cache_file_static()
+        else:
+            cache = get_cache_file()
+        print(cache)
         with my_vcr.use_cassette(cache, record_mode="new_episodes") as cass:
             base_route = self.request.uri.split("?")[0]
 
@@ -153,11 +178,16 @@ class TestRouteHandler(tornado.web.RequestHandler):
 
     def post(self):
         is_soap_action = "Soapaction" in self.request.headers
-        cache = get_cache_file()
-
+        if self.request.uri == "/api/requestgroups/":
+            cache = get_cache_file_static()
+        else:
+            cache = get_cache_file()
+        print(cache)
         match_on = ['uri', 'method', 'body']
         if self.request.uri == "/node_agent2/node_agent":
             match_on = ["lt"]
+        elif self.request.uri == "/api/requestgroups/":
+            match_on = ["lco"]
 
         with my_vcr.use_cassette(
             cache,
@@ -180,7 +210,13 @@ class TestRouteHandler(tornado.web.RequestHandler):
                 for k, v in self.request.headers.get_all():
                     headers[k] = v
 
-                requests.post(url, data=self.request.body, headers=headers)
+                if self.request.uri == "/api/requestgroups/":
+                    header = {'Authorization': headers['Authorization']}
+                    requests.post(
+                        url, json=json.loads(self.request.body.decode()), headers=header
+                    )
+                else:
+                    requests.post(url, data=self.request.body, headers=headers)
 
                 # Get recorded document and pass it back
                 response = cass.responses_of(
@@ -214,6 +250,7 @@ if __name__ == "__main__":
     log = make_log("testserver")
     my_vcr = vcr.VCR()
     my_vcr.register_matcher("lt", lt_request_matcher)
+    my_vcr.register_matcher("lco", lco_request_matcher)
     if "test_server" in cfg:
         app = make_app()
         server = tornado.httpserver.HTTPServer(app)
