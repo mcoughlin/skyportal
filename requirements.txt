@@ -15,7 +15,7 @@ fastavro==1.2.4
 tqdm>=4.27,<4.62
 matplotlib==3.4.2
 astroquery==0.4.2
-apispec==4.0.0
+apispec==4.7.1
 marshmallow==3.12.1
 marshmallow-sqlalchemy==0.24.3
 marshmallow-enum==1.5.1
@@ -46,3 +46,4 @@ ligo.skymap==0.5.3
 healpy==1.15.0
 pygcn==1.1.0
 xmlschema==1.6.1
+requests<2.26
