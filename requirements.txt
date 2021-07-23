@@ -11,7 +11,7 @@ astropy==4.2.1
 aplpy==2.0.3
 reproject==0.7.1
 avro-python3==1.10.2
-fastavro==1.2.4
+fastavro==1.4.4
 tqdm>=4.27,<4.62
 matplotlib==3.4.2
 astroquery==0.4.2
@@ -44,6 +44,6 @@ vcrpy==4.1.1
 aiosmtpd==1.4.2
 ligo.skymap==0.5.3
 healpy==1.15.0
-pygcn==1.1.0
-xmlschema==1.6.1
+pygcn==1.1.1
+xmlschema==1.6.4
 requests<2.26
