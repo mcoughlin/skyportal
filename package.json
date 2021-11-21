@@ -60,7 +60,7 @@
     "react-to-print": "2.14.0",
     "react-window": "1.8.6",
     "redoc": "2.0.0-rc.56",
-    "redoc-cli": "0.12.3",
+    "redoc-cli": "0.13.0",
     "redux": "4.1.1",
     "redux-logger": "3.0.6",
     "redux-thunk": "2.3.0",
