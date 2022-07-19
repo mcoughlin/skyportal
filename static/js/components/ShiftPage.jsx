@@ -133,14 +133,14 @@ const ShiftPage = ({ route }) => {
         <Paper elevation={1}>
           {shiftList && !show && currentShift?.id ? <CommentOnShift /> : null}
         </Paper>
-        <Paper elevation={1}>
+        {/* <Paper elevation={1}>
           {shiftList && !show && currentShift?.id ? (
             <Reminders
               resourceId={currentShift.id.toString()}
               resourceType="shift"
             />
           ) : null}
-        </Paper>
+        </Paper> */}
       </Grid>
       <Grid item md={12} sm={12}>
         <ShiftSummary />

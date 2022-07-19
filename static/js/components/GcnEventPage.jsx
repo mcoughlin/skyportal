@@ -508,7 +508,7 @@ const GcnEventPage = ({ route }) => {
             </AccordionDetails>
           </Accordion>
         </div>
-        <div className={styles.columnItem}>
+        {/* <div className={styles.columnItem}>
           <Accordion defaultExpanded>
             <AccordionDetails>
               <div className={styles.gcnEventContainer}>
@@ -519,7 +519,7 @@ const GcnEventPage = ({ route }) => {
               </div>
             </AccordionDetails>
           </Accordion>
-        </div>
+        </div> */}
       </Grid>
     </Grid>
   );

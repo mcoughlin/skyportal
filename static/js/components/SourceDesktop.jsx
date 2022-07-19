@@ -778,9 +778,9 @@ const SourceDesktop = ({ source }) => {
               <AccordionDetails>
                 <SourceNotification sourceId={source.id} />
               </AccordionDetails>
-              <AccordionDetails>
+              {/* <AccordionDetails>
                 <Reminders resourceId={source.id} resourceType="source" />
-              </AccordionDetails>
+              </AccordionDetails> */}
             </Accordion>
           </div>
         </Collapse>
