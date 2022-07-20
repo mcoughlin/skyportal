@@ -42,7 +42,7 @@ import PhotometryTable from "./PhotometryTable";
 import FavoritesButton from "./FavoritesButton";
 import SourceAnnotationButtons from "./SourceAnnotationButtons";
 import TNSATForm from "./TNSATForm";
-import Reminders from "./Reminders";
+// import Reminders from "./Reminders";
 
 import * as spectraActions from "../ducks/spectra";
 

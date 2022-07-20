@@ -35,7 +35,7 @@ import ObservationPlanRequestLists from "./ObservationPlanRequestLists";
 
 import CommentList from "./CommentList";
 import GcnTags from "./GcnTags";
-import Reminders from "./Reminders";
+// import Reminders from "./Reminders";
 
 import withRouter from "./withRouter";
 

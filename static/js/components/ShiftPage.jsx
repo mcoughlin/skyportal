@@ -10,7 +10,7 @@ import NewShift from "./NewShift";
 import MyCalendar from "./ShiftCalendar";
 import { CurrentShiftMenu, CommentOnShift } from "./ShiftManagement";
 import ShiftSummary from "./ShiftSummary";
-import Reminders from "./Reminders";
+// import Reminders from "./Reminders";
 
 import { getShiftsSummary } from "../ducks/shift";
 
