@@ -70,5 +70,5 @@ selenium==4.4.3
 selenium-requests==2.0.0
 afterglowpy==0.7.3
 gcn-kafka==0.2.3
-iminuit==2.15.2
+iminuit==2.16.0
 watchdog==2.1.9
