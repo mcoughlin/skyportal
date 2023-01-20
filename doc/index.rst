@@ -100,6 +100,7 @@ User Guide
    followup
    mma
    spatial_catalog
+   recurring_api
    advanced_usage
    analysis
    image_analysis
