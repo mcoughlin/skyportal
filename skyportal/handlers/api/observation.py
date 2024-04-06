@@ -2005,30 +2005,12 @@ def retrieve_observations_and_simsurvey(
                 f'Sensitivity_data dictionary missing keys for filter {filt}'
             )
 
-    # get height and width
-    stmt = (
-        InstrumentField.select(session.user_or_token)
-        .where(InstrumentField.id == observations[0]["field"]["id"])
-        .options(undefer(InstrumentField.contour_summary))
-    )
-    field = session.scalars(stmt).first()
-    if field is None:
-        raise ValueError(
-            'Missing field {obs_dict["field"]["id"]} required to estimate field size'
-        )
-    contour_summary = field.to_dict()["contour_summary"]["features"][0]
-    coordinates = np.array(contour_summary["geometry"]["coordinates"])
-    width = np.max(coordinates[:, 0]) - np.min(coordinates[:, 0])
-    height = np.max(coordinates[:, 1]) - np.min(coordinates[:, 1])
-
     observation_simsurvey(
         observations,
         localization.id,
         instrument.id,
         survey_efficiency_analysis_id,
         survey_efficiency_analysis_type,
-        width=width,
-        height=height,
         number_of_injections=payload['number_of_injections'],
         number_of_detections=payload['number_of_detections'],
         detection_threshold=payload['detection_threshold'],

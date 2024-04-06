@@ -23,8 +23,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
+from regions import Regions
 import requests
 import simsurvey
+import skysurvey.dataset
+import skysurvey.survey
+import skysurvey.target
+from simsurvey.utils import model_tools
+from simsurvey.models import AngularTimeSeriesSource
+import skysurvey
 import sncosmo
 import sqlalchemy as sa
 from astroplan import (
@@ -265,8 +272,6 @@ def post_survey_efficiency_analysis(
                 )
             contour_summary = field.contour_summary["features"][0]
             coordinates = np.array(contour_summary["geometry"]["coordinates"])
-            width = np.max(coordinates[:, 0]) - np.min(coordinates[:, 0])
-            height = np.max(coordinates[:, 1]) - np.min(coordinates[:, 1])
 
     log(
         f'Simsurvey analysis in progress for ID {survey_efficiency_analysis.id}. Should be available soon.'
@@ -285,8 +290,6 @@ def post_survey_efficiency_analysis(
             instrument.id,
             survey_efficiency_analysis.id,
             "SurveyEfficiencyForObservationPlan",
-            width=width,
-            height=height,
             number_of_injections=payload['numberInjections'],
             number_of_detections=payload['numberDetections'],
             detection_threshold=payload['detectionThreshold'],
@@ -2434,8 +2437,6 @@ def observation_simsurvey(
     instrument_id,
     survey_efficiency_analysis_id,
     survey_efficiency_analysis_type,
-    width,
-    height,
     number_of_injections=1000,
     number_of_detections=2,
     detection_threshold=5,
@@ -2458,10 +2459,6 @@ def observation_simsurvey(
         The id of the survey efficiency analysis for the request (either skyportal.models.survey_efficiency.SurveyEfficiencyForObservations or skyportal.models.survey_efficiency.SurveyEfficiencyForObservationPlan).
     survey_efficiency_analysis_type : str
         Either SurveyEfficiencyForObservations or SurveyEfficiencyForObservationPlan.
-    width : float
-        Width of the telescope field of view in degrees.
-    height : float
-        Height of the telescope field of view in degrees.
     number_of_injections : int
         Number of simulations to evaluate efficiency with. Defaults to 1000.
     number_of_detections : int
@@ -2483,7 +2480,8 @@ def observation_simsurvey(
     else:
         session = Session(bind=DBSession.session_factory.kw["bind"])
 
-    try:
+    #try:
+    if True:
 
         localization = session.scalars(
             sa.select(Localization).where(Localization.id == localization_id)
@@ -2496,6 +2494,11 @@ def observation_simsurvey(
         ).first()
         if instrument is None:
             raise ValueError(f'No instrument with ID {instrument_id}')
+
+        if not instrument.has_region:
+            raise ValueError(f'Instrument with ID {instrument_id} does not have region')
+        else:
+            regions = Regions.parse(instrument.region, format='ds9')
 
         if survey_efficiency_analysis_type == "SurveyEfficiencyForObservations":
             survey_efficiency_analysis = session.scalars(
@@ -2554,7 +2557,14 @@ def observation_simsurvey(
             pointings["skynoise"].append(10 ** (-0.4 * (limMag - zp)) / 5.0)
             pointings["zp"] = zp
 
-        df = pd.DataFrame.from_dict(pointings)
+        survey = skysurvey.Survey.from_pointings(pointings, footprint=regions[0])
+        print(survey)
+        print(stop)
+        anysurvey = survey.PolygonSurvey(data, fields)
+        print(plan, anysurvey)
+        print(plan.data)
+        print(stop)
+
         plan = simsurvey.SurveyPlan(
             time=df['jd'],
             band=df['filter'],
@@ -2714,6 +2724,10 @@ def observation_simsurvey(
             'side': lcs._side_properties,
         }
 
+        print(plan)
+        print(lcs)
+        print(data)
+
         class NumpyEncoder(json.JSONEncoder):
             def default(self, obj):
                 if isinstance(obj, np.ndarray):
@@ -2730,13 +2744,13 @@ def observation_simsurvey(
             f"Finished survey efficiency analysis for ID {survey_efficiency_analysis.id}"
         )
 
-    except Exception as e:
-        return log(
-            f"Unable to complete survey efficiency analysis {survey_efficiency_analysis.id}: {e}"
-        )
-    finally:
-        session.close()
-        Session.remove()
+    #except Exception as e:
+    #    return log(
+    #        f"Unable to complete survey efficiency analysis {survey_efficiency_analysis.id}: {e}"
+    #    )
+    #finally:
+    #    session.close()
+    #    Session.remove()
 
 
 def observation_simsurvey_plot(
@@ -3034,8 +3048,6 @@ class ObservationPlanSimSurveyHandler(BaseHandler):
                         )
                     contour_summary = field.to_dict()["contour_summary"]["features"][0]
                     coordinates = np.array(contour_summary["geometry"]["coordinates"])
-                    width = np.max(coordinates[:, 0]) - np.min(coordinates[:, 0])
-                    height = np.max(coordinates[:, 1]) - np.min(coordinates[:, 1])
 
             self.push_notification(
                 f'Simsurvey analysis in progress for ID {survey_efficiency_analysis.id}. Should be available soon.'
@@ -3047,8 +3059,6 @@ class ObservationPlanSimSurveyHandler(BaseHandler):
                 instrument.id,
                 survey_efficiency_analysis.id,
                 "SurveyEfficiencyForObservationPlan",
-                width=width,
-                height=height,
                 number_of_injections=payload['number_of_injections'],
                 number_of_detections=payload['number_of_detections'],
                 detection_threshold=payload['detection_threshold'],
