@@ -17,7 +17,7 @@
     "@mui/styles": "5.15.21",
     "@mui/x-data-grid": "6.9.2",
     "@mui/x-date-pickers": "7.9.0",
-    "@rjsf/core": "5.10.0",
+    "@rjsf/core": "5.19.3",
     "@rjsf/material-ui": "5.19.3",
     "@rjsf/mui": "5.18.3",
     "@rjsf/utils": "5.18.5",
