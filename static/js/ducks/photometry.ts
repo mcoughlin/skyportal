@@ -19,7 +19,17 @@ export function fetchSourcePhotometry(
   id: number | string,
   params: Record<string, any> = {},
 ) {
-  return API.GET(`/api/sources/${id}/photometry`, FETCH_SOURCE_PHOTOMETRY, {
+  // A deployment can route the source-page photometry fetch through a custom
+  // endpoint via the `photometry_display_endpoint` config (e.g. a broker
+  // passthrough that merges saved DB photometry with on-demand broker
+  // photometry). "{id}" is substituted with the object id; when unset, the
+  // standard sources endpoint is used. The endpoint must return the same
+  // response shape (a bare list of serialized photometry points).
+  const template = store.getState()?.config?.photometryDisplayEndpoint;
+  const url = template
+    ? template.replace("{id}", encodeURIComponent(String(id)))
+    : `/api/sources/${id}/photometry`;
+  return API.GET(url, FETCH_SOURCE_PHOTOMETRY, {
     includeOwnerInfo: true,
     includeStreamInfo: true,
     includeValidationInfo: true,
