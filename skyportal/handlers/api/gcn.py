@@ -3356,26 +3356,23 @@ def add_tiles_and_properties_and_contour(
         if parent_session is None:
             session.add(localization)
 
-        # COPY rather than ORM inserts: ~2x faster, and no row object per tile.
-        # uniq/probdensity are deferred, so read them before opening the COPY:
-        # a lazy load inside it would query a connection stuck in COPY and hang.
-        uniqs, probdensities = localization.uniq, localization.probdensity
+        # uniq/probdensity are deferred: a lazy load inside the COPY would hang the connection.
+        tiles = zip(localization.uniq, localization.probdensity)
         now = utcnow_naive().isoformat()
         dateobs = localization.dateobs.isoformat()
-        to_tile = LocalizationTile.healpix.type.process_bind_param
-        connection = session.connection().connection
+        to_healpix = LocalizationTile.healpix.type.process_bind_param
         with (
-            connection.cursor() as cursor,
+            session.connection().connection.cursor() as cursor,
             cursor.copy(
                 "COPY localizationtiles "
                 "(localization_id, probdensity, dateobs, healpix, created_at, modified) "
                 "FROM STDIN"
             ) as copy,
         ):
-            for uniq, probdensity in zip(uniqs, probdensities):
+            for uniq, probdensity in tiles:
                 copy.write(
                     f"{localization_id}\t{probdensity}\t{dateobs}\t"
-                    f"{to_tile(uniq, None)}\t{now}\t{now}\n"
+                    f"{to_healpix(uniq, None)}\t{now}\t{now}\n"
                 )
         session.commit()
 
