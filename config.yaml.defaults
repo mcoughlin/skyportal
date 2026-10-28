@@ -206,6 +206,8 @@ app:
     bot_name:
     api_key:
     look_back_days: 1
+    min_request_interval: 3 # Seconds between TNS requests, to stay inside the bot's rate limit
+    max_bulk_refresh: 1000 # Objects a single bulk TNS refresh may queue
 
   trove:
     endpoint: https://datatrove.as.arizona.edu # Base URL of the TROVE API
