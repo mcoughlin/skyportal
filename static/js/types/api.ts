@@ -4040,6 +4040,202 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/catalogs/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create or resume a catalog upload
+         * @description <b>Permission(s) required:</b> <em>System admin (or System admin)</em><br><br>An identical manifest from the same owner resumes the upload.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CatalogUploadManifest"];
+                };
+            };
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["CatalogUploadStatus"];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/catalogs/uploads/{upload_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get catalog upload progress and publication result
+         * @description <b>Permission(s) required:</b> <em>System admin (or System admin)</em><br><br>
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    upload_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["CatalogUploadStatus"];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Discard staged files for an uploading or failed catalog upload
+         * @description <b>Permission(s) required:</b> <em>System admin (or System admin)</em><br><br>
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    upload_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The upload was discarded. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/catalogs/uploads/{upload_id}/finalize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start or resume publication of a complete catalog upload
+         * @description <b>Permission(s) required:</b> <em>System admin (or System admin)</em><br><br>
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    upload_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["CatalogUploadStatus"];
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/catalogs/uploads/{upload_id}/{file_name}/{chunk_index}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Upload one catalog file chunk
+         * @description <b>Permission(s) required:</b> <em>System admin (or System admin)</em><br><br>Send application/octet-stream. Repeating an identical chunk is safe.
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    upload_id: string;
+                    file_name: string;
+                    chunk_index: number;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            responses: {
+                /** @description The chunk has been stored. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/catalog_queries": {
         parameters: {
             query?: never;
@@ -44624,6 +44820,80 @@ export interface components {
             matches: components["schemas"]["CatalogMatchResponse"][];
             /** Truncated */
             truncated: boolean;
+        };
+        /** CatalogUploadFile */
+        CatalogUploadFile: {
+            /** Size */
+            size: number;
+            /** Sha256 */
+            sha256: string;
+            /**
+             * Encoding
+             * @default identity
+             * @enum {string}
+             */
+            encoding: "identity" | "gzip";
+        };
+        /** CatalogUploadManifest */
+        CatalogUploadManifest: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "galaxy" | "simbad";
+            /**
+             * Catalog Name
+             * @default null
+             */
+            catalog_name: string | null;
+            /**
+             * Release
+             * @default null
+             */
+            release: string | null;
+            /**
+             * Group Ids
+             * @default null
+             */
+            group_ids: number[] | null;
+            /** Files */
+            files: {
+                [key: string]: components["schemas"]["CatalogUploadFile"];
+            };
+        };
+        /** CatalogUploadResult */
+        CatalogUploadResult: {
+            /** Rows Imported */
+            rows_imported: number;
+            /**
+             * Rows Skipped
+             * @default null
+             */
+            rows_skipped: number | null;
+            /**
+             * Negative Redshifts
+             * @default null
+             */
+            negative_redshifts: number | null;
+        };
+        /** CatalogUploadStatus */
+        CatalogUploadStatus: {
+            /** Id */
+            id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "uploading" | "loading" | "complete" | "failed";
+            /** Chunk Size */
+            chunk_size: number;
+            /** Received */
+            received: {
+                [key: string]: number[];
+            };
+            result: components["schemas"]["CatalogUploadResult"];
+            /** Error */
+            error: string | null;
         };
         /**
          * CatalogQueryPostBody

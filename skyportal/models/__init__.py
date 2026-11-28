@@ -1,6 +1,8 @@
 # Baselayer models
 from baselayer.app.models import *
 
+from . import catalog_upload
+
 # SkyPortal models
 from .allocation import *
 from .analysis import *

@@ -61,6 +61,12 @@ from .catalog_services import (
     GaiaPhotometricAlertsQueryHandler,
     SwiftLSXPSQueryHandler,
 )
+from .catalog_upload import (
+    CatalogUploadChunkHandler,
+    CatalogUploadFinalizeHandler,
+    CatalogUploadHandler,
+    CatalogUploadStatusHandler,
+)
 from .classification import (
     ClassificationHandler,
     ClassificationVotesHandler,

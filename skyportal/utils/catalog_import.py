@@ -2,6 +2,7 @@
 
 import csv
 import math
+from contextlib import nullcontext
 from itertools import batched
 
 import numpy as np
@@ -21,8 +22,16 @@ from .naive_datetime import utcnow_naive
 SIMBAD_URL = "https://simbad.cds.unistra.fr/simbad/"
 
 
-def csv_rows(path, required):
-    with open(path, encoding="utf-8-sig", newline="") as stream:
+def csv_rows(source, required):
+    path = (
+        getattr(source, "name", "uploaded CSV") if hasattr(source, "read") else source
+    )
+    context = (
+        nullcontext(source)
+        if hasattr(source, "read")
+        else open(source, encoding="utf-8-sig", newline="")
+    )
+    with context as stream:
         reader = csv.DictReader(stream)
         missing = set(required).difference(reader.fieldnames or ())
         if missing:
@@ -100,7 +109,9 @@ def copy_rows(session, statement, rows):
     return count
 
 
-def import_simbad(session, basic, ident, version, *, group_ids=None):
+def import_simbad(
+    session, basic, ident, version, *, group_ids=None, allow_existing=True
+):
     """Load and activate a release in the caller's transaction.
 
     Releases are immutable. Reusing a version activates the previously loaded
@@ -136,6 +147,8 @@ def import_simbad(session, basic, ident, version, *, group_ids=None):
             CatalogPointRelease.version == version,
         )
     )
+    if release is not None and not allow_existing:
+        raise ValueError(f"SIMBAD release {version} already exists")
     if release is None:
         release = CatalogPointRelease(catalog_id=catalog.id, version=version)
         session.add(release)

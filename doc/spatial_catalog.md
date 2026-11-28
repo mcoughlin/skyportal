@@ -20,6 +20,37 @@ page uses the local crossmatch endpoint alongside its broker results. Assistant
 calls use the same access checks through the `resolve_catalog_object` and
 `crossmatch_catalogs` MCP tools.
 
+## Uploading catalogs over HTTPS
+
+Use [skyportal-catalogs](https://github.com/skyportal/skyportal-catalogs) to
+download and prepare upstream data, then upload it to a SkyPortal instance.
+The upload API requires a token with **System admin** access. It supports
+prepared Galaxy CSVs and a matched pair of SIMBAD CSV exports.
+
+- `POST /api/catalogs/uploads` opens an upload from a manifest. A Galaxy
+  manifest has `kind: "galaxy"`, `catalog_name`, and a `galaxies` file.
+  A SIMBAD manifest has `kind: "simbad"`, `release`, and `basic` and
+  `ident` files. Each entry under `files` has a byte `size`, lowercase
+  hex `sha256`, and optional `encoding` (`identity` or `gzip`).
+  `group_ids` optionally restricts access to a new catalog. Sending the
+  same manifest as the same user returns the existing upload ID.
+- `PUT /api/catalogs/uploads/<id>/<file>/<index>` stores an
+  `application/octet-stream` chunk. Use the returned `chunk_size` and
+  zero-based indexes. Only the last chunk can be shorter. Repeating the
+  same bytes at the same index succeeds while the upload is open.
+- `GET /api/catalogs/uploads/<id>` reports progress and staged chunk
+  indexes while uploading. `POST /api/catalogs/uploads/<id>/finalize`
+  starts publication once all chunks are present. Poll the status for
+  `complete` or `failed`. Repeating finalization is safe.
+- `DELETE /api/catalogs/uploads/<id>` discards an unfinished or failed
+  upload. A successful import clears its staged chunks automatically.
+
+Use a whole-file gzip stream to reduce transfer and staging size. Chunks
+are stored in PostgreSQL so requests can resume across server workers and
+restarts. SkyPortal streams those bytes into the catalog loader, checks the
+manifest, and commits publication as one transaction. The staging space
+and transaction both contribute to database disk usage during a large load.
+
 ## Importing SIMBAD
 
 Apply the database migrations first. Use a matched pair of CSV exports from the

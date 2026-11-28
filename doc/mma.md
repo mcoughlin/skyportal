@@ -75,8 +75,10 @@ upstream catalog preparation recipes. Prepared CSV files require `name`, `ra`,
 and `dec`. They may also include Galaxy columns such as `distmpc`, `redshift`,
 `mstar`, and `magb`. Coordinates are in degrees and missing values are blank.
 
-Use the generic Galaxy upload API for small catalogs. For a large prepared
-catalog, run the bulk loader from the SkyPortal checkout with database access.
+Use the generic Galaxy upload API for small catalogs. The
+[resumable upload API](spatial_catalog.md#uploading-catalogs-over-https)
+accepts large prepared catalogs over HTTPS. Operators with database access
+can also run the bulk loader from the SkyPortal checkout.
 
 ```sh
 python -m tools.import_galaxies --config config.yaml --catalog-name REGALADE \
