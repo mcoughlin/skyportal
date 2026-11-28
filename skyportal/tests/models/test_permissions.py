@@ -19,6 +19,7 @@ cell). Access expectations below are ported verbatim from that file.
 
 import os
 import re
+import uuid
 
 import pytest
 
@@ -88,6 +89,46 @@ def _recover_session_after_test():
         models.DBSession().rollback()
     except Exception:
         pass
+
+
+@pytest.fixture
+def catalog_permission_release(public_group):
+    catalog = models.SpatialCatalog(
+        catalog_name=f"Permission catalog {uuid.uuid4()}",
+        kind="point",
+        groups=[public_group],
+    )
+    models.DBSession.add(catalog)
+    models.DBSession.flush()
+    release = models.CatalogPointRelease(
+        catalog_id=catalog.id, version="fixture", active=True
+    )
+    models.DBSession.add(release)
+    models.DBSession.commit()
+    yield release
+    models.DBSession.delete(catalog)
+    models.DBSession.commit()
+
+
+@pytest.fixture
+def catalog_permission_point(catalog_permission_release):
+    point = models.CatalogPoint(
+        release_id=catalog_permission_release.id, external_id="1", name="Fixture point"
+    )
+    models.DBSession.add(point)
+    models.DBSession.commit()
+    return point
+
+
+@pytest.fixture
+def catalog_permission_identifier(catalog_permission_point):
+    point = catalog_permission_point
+    identifier = models.CatalogIdentifier(
+        release_id=point.release_id, external_id=point.external_id, name="Fixture alias"
+    )
+    models.DBSession.add(identifier)
+    models.DBSession.commit()
+    return identifier
 
 
 # Object fixture -> the model class it instantiates, verified at runtime rather
@@ -228,6 +269,9 @@ FIXTURE_MODEL = {
     "public_gcn_event_association": "GcnEventAssociation",
     "public_gcn_association_rule": "GcnAssociationRule",
     "public_spatial_catalog": "SpatialCatalog",
+    "catalog_permission_release": "CatalogPointRelease",
+    "catalog_permission_point": "CatalogPoint",
+    "catalog_permission_identifier": "CatalogIdentifier",
     "public_stream_invitation": "StreamInvitation",
     "public_stream_sharing_service": "StreamSharingService",
     "public_survey_efficiency_for_observation_plan": "SurveyEfficiencyForObservationPlan",
@@ -2677,6 +2721,16 @@ CASES = [
     ("super_admin_user", "public_spatial_catalog", "read", True),
     ("super_admin_user", "public_spatial_catalog", "update", True),
     ("super_admin_user", "public_spatial_catalog", "delete", True),
+    # --- Point catalog releases, entries, and aliases inherit catalog access ---
+    ("user", "catalog_permission_release", "read", True),
+    ("user_group2", "catalog_permission_release", "read", False),
+    ("super_admin_user", "catalog_permission_release", "read", True),
+    ("user", "catalog_permission_point", "read", True),
+    ("user_group2", "catalog_permission_point", "read", False),
+    ("super_admin_user", "catalog_permission_point", "read", True),
+    ("user", "catalog_permission_identifier", "read", True),
+    ("user_group2", "catalog_permission_identifier", "read", False),
+    ("super_admin_user", "catalog_permission_identifier", "read", True),
     # --- StreamInvitation  (public_stream_invitation)  [PREDICTED - verify in CI] ---
     ("user", "public_stream_invitation", "create", True),
     ("user", "public_stream_invitation", "read", True),
