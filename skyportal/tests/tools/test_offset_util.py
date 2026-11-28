@@ -278,10 +278,15 @@ def test_finding_chart_without_an_image_still_renders():
 
     The chart is drawn over a blank frame, so the starlist is still usable.
     """
-    with patch("skyportal.utils.offset.fits_image", return_value=None):
+    ra, dec = 123.0, 33.3
+    stars = _gaia_tap_table(_gaia_stars_around(ra, dec), ra, dec)
+    with (
+        patch.object(offset, "fits_image", return_value=None),
+        patch.object(offset, "_gaia_stars", return_value=stars),
+    ):
         rez = get_finding_chart(
-            123.0,
-            33.3,
+            ra,
+            dec,
             "testSource",
             image_source="dss",
             fallback_image_source=None,
