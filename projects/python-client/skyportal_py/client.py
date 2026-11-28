@@ -215,8 +215,6 @@ class SkyPortal(httpx.Client):
     post_galaxy_catalog = galaxies.post_galaxy_catalog
     delete_galaxy_catalog = galaxies.delete_galaxy_catalog
     post_galaxy_catalog_ascii = galaxies.post_galaxy_catalog_ascii
-    post_galaxy_catalog_regalade = galaxies.post_galaxy_catalog_regalade
-    post_galaxy_catalog_ned = galaxies.post_galaxy_catalog_ned
     post_gcn_event = gcn_events.post_gcn_event
     fetch_gcn_event = gcn_events.fetch_gcn_event
     fetch_gcn_events = gcn_events.fetch_gcn_events

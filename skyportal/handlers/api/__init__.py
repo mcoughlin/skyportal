@@ -111,8 +111,6 @@ from .followup_request import (
 from .galaxy import (
     GalaxyASCIIFileHandler,
     GalaxyCatalogHandler,
-    GalaxyNEDHandler,
-    GalaxyRegaladeHandler,
     ObjHostHandler,
 )
 from .gcn import (

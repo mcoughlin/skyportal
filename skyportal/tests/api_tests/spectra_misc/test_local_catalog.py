@@ -8,6 +8,7 @@ from skyportal.models import DBSession, Galaxy, GalaxyCatalog, SpatialCatalog
 from skyportal.tests import api, assert_api, retry_until
 from skyportal.tests.api_tests.test_mcp import call_tool
 from skyportal.utils.catalog_import import import_simbad
+from skyportal.utils.galaxy_catalog_import import import_galaxies
 
 SIMBAD = Path(__file__).resolve().parents[2] / "data" / "simbad"
 
@@ -115,21 +116,28 @@ def test_simbad_import_and_search(
 
 
 def test_shared_catalogs_include_galaxies_and_legacy_footprints(
-    public_group, super_admin_token, view_only_token
+    public_group, super_admin_token, view_only_token, tmp_path
 ):
+    for old_import in ("regalade", "ned"):
+        status, _ = api(
+            "POST", f"galaxy_catalog/{old_import}", token=super_admin_token, data={}
+        )
+        assert status == 405
+
+    prepared = tmp_path / "galaxies.csv"
+    prepared.write_text(
+        'name,ra,dec,redshift\n"Fixture, galaxy",35,50,-0.001\nInvalid,35,91,\n'
+    )
+    catalog_name = "Shared API galaxy fixture"
     with DBSession.session_factory.begin() as session:
-        galaxy_catalog = GalaxyCatalog(
-            name="Shared API galaxy fixture", groups=[session.merge(public_group)]
+        assert import_galaxies(
+            session, prepared, catalog_name, group_ids=[public_group.id]
+        ) == (1, 1, 1)
+        galaxy = session.scalar(
+            sa.select(Galaxy).where(Galaxy.name == "Fixture, galaxy")
         )
-        session.add(galaxy_catalog)
-        session.flush()
-        galaxy_catalog_id = galaxy_catalog.id
-        galaxy = Galaxy(
-            catalog_id=galaxy_catalog_id, name="Fixture galaxy", ra=35, dec=50
-        )
-        session.add(galaxy)
-        session.flush()
         galaxy_id = galaxy.id
+        galaxy_catalog_id = galaxy.catalog_id
 
     footprint_ids = []
     try:
@@ -160,6 +168,7 @@ def test_shared_catalogs_include_galaxies_and_legacy_footprints(
                 match["catalog"] == f"galaxy:{galaxy_catalog_id}"
                 and match["external_id"] == str(galaxy_id)
                 and match["match_type"] == "point"
+                and match["redshift"] == pytest.approx(-0.001)
                 for match in matches
             )
             footprints = {

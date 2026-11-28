@@ -99,8 +99,6 @@ from skyportal.handlers.api import (
     GaiaQueryHandler,
     GalaxyASCIIFileHandler,
     GalaxyCatalogHandler,
-    GalaxyNEDHandler,
-    GalaxyRegaladeHandler,
     GcnAssociationRuleHandler,
     GcnEventAliasesHandler,
     GcnEventAssociationsHandler,
@@ -455,8 +453,6 @@ skyportal_handlers = [
     ),
     (r"/api/followup_request(/.*)?", FollowupRequestHandler),
     (r"/api/photometry_request(/.*)", PhotometryRequestHandler),
-    (r"/api/galaxy_catalog/regalade", GalaxyRegaladeHandler),
-    (r"/api/galaxy_catalog/ned", GalaxyNEDHandler),
     (r"/api/galaxy_catalog/ascii", GalaxyASCIIFileHandler),
     (r"/api/galaxy_catalog(/[0-9A-Za-z-_\.\+]+)?", GalaxyCatalogHandler),
     (

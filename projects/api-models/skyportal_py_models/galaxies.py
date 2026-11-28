@@ -161,22 +161,6 @@ class GalaxyASCIIFilePostBody(BaseModel):
     )
 
 
-class GalaxyCatalogFitsPostBody(BaseModel):
-    """Request body for uploading galaxies from a FITS catalog."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    file_name: str | None = Field(
-        default=None,
-        description="Name of the .fits file containing the galaxies (in the data "
-        "directory).",
-    )
-    file_url: str | None = Field(
-        default=None,
-        description="URL of the .fits file containing the galaxies.",
-    )
-
-
 class ObjHostPostBody(BaseModel):
     """Request body for setting an object's host galaxy."""
 
@@ -290,7 +274,6 @@ __all__ = [
     "GalaxyASCIIFilePostBody",
     "GalaxyCatalogASCIIPost",
     "GalaxyCatalogCountResponse",
-    "GalaxyCatalogFitsPostBody",
     "GalaxyCatalogGetQuery",
     "GalaxyCatalogPost",
     "GalaxyCatalogPostBody",
