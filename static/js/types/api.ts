@@ -3913,6 +3913,133 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/catalogs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List accessible local catalogs */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["LocalCatalogListResponse"];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/catalogs/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Resolve a name or alias in local catalogs */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Optional catalog ID from GET /api/catalogs. */
+                    catalog?: string | null;
+                    limit?: number;
+                    /** @description Name or alias. */
+                    name: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["CatalogSearchResponse"];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/catalogs/crossmatch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Crossmatch a position against local catalogs */
+        get: {
+            parameters: {
+                query: {
+                    /** @description Optional catalog ID from GET /api/catalogs. */
+                    catalog?: string | null;
+                    limit?: number;
+                    /** @description Right ascension in degrees. */
+                    ra: number;
+                    /** @description Declination in degrees. */
+                    dec: number;
+                    /** @description Point search radius in arcseconds. */
+                    radius_arcsec?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Success"] & {
+                            data?: components["schemas"]["CatalogSearchResponse"];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/catalog_queries": {
         parameters: {
             query?: never;
@@ -27056,6 +27183,132 @@ export interface components {
             message?: string;
             data?: components["schemas"]["CandidateNoID"][];
         };
+        CatalogIdentifier: {
+            readonly point?: components["schemas"]["CatalogPoint"];
+            release_id: number;
+            external_id: string;
+            name: string;
+            /** @description Unique object identifier. */
+            id?: number;
+        };
+        SingleCatalogIdentifier: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogIdentifier"];
+        };
+        ArrayOfCatalogIdentifiers: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogIdentifier"][];
+        };
+        CatalogIdentifierNoID: {
+            readonly point?: components["schemas"]["CatalogPoint"];
+            release_id: number;
+            external_id: string;
+            name: string;
+        };
+        SingleCatalogIdentifierNoID: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogIdentifierNoID"];
+        };
+        ArrayOfCatalogIdentifierNoIDs: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogIdentifierNoID"][];
+        };
+        CatalogPoint: {
+            readonly release?: components["schemas"]["CatalogPointRelease"];
+            release_id: number;
+            external_id: string;
+            name: string;
+            object_type?: string | null;
+            redshift?: number | null;
+            coordinate_bibcode?: string | null;
+            /** @description Unique object identifier. */
+            id?: number;
+            ra?: number | null;
+            dec?: number | null;
+        };
+        SingleCatalogPoint: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPoint"];
+        };
+        ArrayOfCatalogPoints: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPoint"][];
+        };
+        CatalogPointNoID: {
+            readonly release?: components["schemas"]["CatalogPointRelease"];
+            release_id: number;
+            external_id: string;
+            name: string;
+            object_type?: string | null;
+            redshift?: number | null;
+            coordinate_bibcode?: string | null;
+            ra?: number | null;
+            dec?: number | null;
+        };
+        SingleCatalogPointNoID: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointNoID"];
+        };
+        ArrayOfCatalogPointNoIDs: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointNoID"][];
+        };
+        CatalogPointRelease: {
+            readonly catalog?: components["schemas"]["SpatialCatalog"];
+            catalog_id: number;
+            version: string;
+            active?: boolean;
+            entries_count?: number;
+            /** @description Unique object identifier. */
+            id?: number;
+        };
+        SingleCatalogPointRelease: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointRelease"];
+        };
+        ArrayOfCatalogPointReleases: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointRelease"][];
+        };
+        CatalogPointReleaseNoID: {
+            readonly catalog?: components["schemas"]["SpatialCatalog"];
+            catalog_id: number;
+            version: string;
+            active?: boolean;
+            entries_count?: number;
+        };
+        SingleCatalogPointReleaseNoID: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointReleaseNoID"];
+        };
+        ArrayOfCatalogPointReleaseNoIDs: {
+            /** @enum {string} */
+            status: "success";
+            message?: string;
+            data?: components["schemas"]["CatalogPointReleaseNoID"][];
+        };
         CatalogQuery: {
             /** @description The User who requested the catalog query. */
             readonly requester?: components["schemas"]["User"];
@@ -40456,6 +40709,8 @@ export interface components {
             readonly entries?: components["schemas"]["SpatialCatalogEntry"][];
             /** @description Name of the catalog. */
             catalog_name: string;
+            kind?: string;
+            url?: string | null;
             /** @description Unique object identifier. */
             id?: number;
         };
@@ -40530,7 +40785,7 @@ export interface components {
             data?: components["schemas"]["SpatialCatalogEntryNoID"][];
         };
         SpatialCatalogEntryTile: {
-            /** @description Catalog entry name */
+            catalog_id: number;
             entry_name: string;
             /** @description Probability density for the tile */
             probdensity: number;
@@ -40550,7 +40805,7 @@ export interface components {
             data?: components["schemas"]["SpatialCatalogEntryTile"][];
         };
         SpatialCatalogEntryTileNoID: {
-            /** @description Catalog entry name */
+            catalog_id: number;
             entry_name: string;
             /** @description Probability density for the tile */
             probdensity: number;
@@ -40572,6 +40827,8 @@ export interface components {
             readonly entries?: components["schemas"]["SpatialCatalogEntry"][];
             /** @description Name of the catalog. */
             catalog_name: string;
+            kind?: string;
+            url?: string | null;
         };
         SingleSpatialCatalogNoID: {
             /** @enum {string} */
@@ -44385,6 +44642,88 @@ export interface components {
              * @default null
              */
             endDate: string | null;
+        };
+        /** LocalCatalogResponse */
+        LocalCatalogResponse: {
+            /** Id */
+            id: string;
+            /** Legacy Id */
+            legacy_id: number;
+            /** Name */
+            name: string;
+            /**
+             * Geometry
+             * @enum {string}
+             */
+            geometry: "point" | "footprint";
+            /** Url */
+            url: string | null;
+            /** Release */
+            release: string | null;
+            /** Entries Count */
+            entries_count: number | null;
+        };
+        /** LocalCatalogListResponse */
+        LocalCatalogListResponse: components["schemas"]["LocalCatalogResponse"][];
+        /** CatalogMatchResponse */
+        CatalogMatchResponse: {
+            /** Catalog */
+            catalog: string;
+            /** Catalog Name */
+            catalog_name: string;
+            /** Release */
+            release: string | null;
+            /** External Id */
+            external_id: string;
+            /** Name */
+            name: string;
+            /** Ra */
+            ra: number | null;
+            /** Dec */
+            dec: number | null;
+            /**
+             * Matched Alias
+             * @default null
+             */
+            matched_alias: string | null;
+            /**
+             * Match Type
+             * @default null
+             * @enum {string|null}
+             */
+            match_type: "point" | "footprint" | null;
+            /**
+             * Separation Arcsec
+             * @default null
+             */
+            separation_arcsec: number | null;
+            /**
+             * Object Type
+             * @default null
+             */
+            object_type: string | null;
+            /**
+             * Redshift
+             * @default null
+             */
+            redshift: number | null;
+            /**
+             * Coordinate Bibcode
+             * @default null
+             */
+            coordinate_bibcode: string | null;
+            /**
+             * Url
+             * @default null
+             */
+            url: string | null;
+        };
+        /** CatalogSearchResponse */
+        CatalogSearchResponse: {
+            /** Matches */
+            matches: components["schemas"]["CatalogMatchResponse"][];
+            /** Truncated */
+            truncated: boolean;
         };
         /**
          * CatalogQueryPostBody

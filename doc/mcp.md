@@ -108,10 +108,10 @@ credentials, and none of that reaches the model.
 
 ## Local catalog searches
 
-| Tool | Purpose |
-| --- | --- |
+| Tool                     | Purpose                                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
 | `resolve_catalog_object` | Find a canonical name and coordinates by name or alias, including SIMBAD where installed |
-| `crossmatch_catalogs` | Search local point catalogs and footprints at a position |
+| `crossmatch_catalogs`    | Search local point catalogs and footprints at a position                                 |
 
 Both tools use the local catalog API with the caller’s permissions. A point
 match returns its angular separation. A footprint match contains the requested
