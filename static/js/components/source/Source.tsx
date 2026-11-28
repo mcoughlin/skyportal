@@ -129,6 +129,7 @@ import {
 } from "../../ducks/brokers";
 import SourceHost from "./SourceHost";
 import FieldLabel from "./FieldLabel";
+import { SourceCatalogMatches } from "../spatial_catalog/CatalogSearch";
 import softButtonsSx from "../softButtons";
 
 const VegaHR = React.lazy(() => import("../plot/VegaHR"));
@@ -531,6 +532,11 @@ const SourceContent = ({ source }: SourceContentProps) => {
               <CentroidPlot
                 sourceId={source.id}
                 plotStyle={{ height: "50vh" }}
+              />
+              <SourceCatalogMatches
+                ra={source.ra ?? null}
+                dec={source.dec ?? null}
+                enabled={Boolean(currentUser?.id)}
               />
             </Suspense>
           </AccordionDetails>

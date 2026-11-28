@@ -90,12 +90,15 @@ def add_catalog(catalog_id, catalog_data):
             return ValueError("Could not disambiguate keys")
 
         session.add_all(entries)
-        session.commit()
+        session.flush()
 
         for entry in entries:
             tiles = [
                 SpatialCatalogEntryTile(
-                    entry_name=entry.entry_name, healpix=uniq, probdensity=probdensity
+                    catalog_id=entry.catalog_id,
+                    entry_name=entry.entry_name,
+                    healpix=uniq,
+                    probdensity=probdensity,
                 )
                 for uniq, probdensity in zip(entry.uniq, entry.probdensity)
             ]
@@ -178,6 +181,10 @@ async def _validate_and_ingest_spatial_catalog(
             catalog = SpatialCatalog(catalog_name=catalog_name, groups=groups)
             session.add(catalog)
             await session.commit()
+        elif catalog.kind != "footprint":
+            return handler.error(
+                f"Catalog {catalog_name} is managed by the point importer"
+            )
         elif group_ids:
             return handler.error(
                 f"Catalog {catalog_name} already exists, its groups cannot be changed"
@@ -199,6 +206,13 @@ async def _validate_and_ingest_spatial_catalog(
         )
 
         return handler.success(data={"id": catalog.id})
+
+
+def legacy_catalog_data(catalog):
+    data = catalog.to_dict()
+    data.pop("kind", None)
+    data.pop("url", None)
+    return data
 
 
 class SpatialCatalogHandler(BaseHandler):
@@ -295,17 +309,22 @@ class SpatialCatalogHandler(BaseHandler):
                 stmt = (
                     SpatialCatalog.select(self.current_user)
                     .options(selectinload(SpatialCatalog.entries))
-                    .where(SpatialCatalog.id == catalog_id)
+                    .where(
+                        SpatialCatalog.id == catalog_id,
+                        SpatialCatalog.kind == "footprint",
+                    )
                 )
                 catalog = await session.scalar(stmt)
                 if catalog is None:
                     return self.error(f"No catalog with name: {query.catalog_name}")
 
-                data = catalog.to_dict()
+                data = legacy_catalog_data(catalog)
                 data["entries"] = [entry.to_dict() for entry in catalog.entries]
                 return self.success(data=data)
 
-            stmt = SpatialCatalog.select(self.current_user)
+            stmt = SpatialCatalog.select(self.current_user).where(
+                SpatialCatalog.kind == "footprint"
+            )
             result = await session.scalars(stmt)
             catalogs = result.all()
             data = []
@@ -315,7 +334,9 @@ class SpatialCatalogHandler(BaseHandler):
                         SpatialCatalogEntry.catalog_id == catalog.id
                     )
                 )
-                data.append({**catalog.to_dict(), "entries_count": entries_count})
+                data.append(
+                    {**legacy_catalog_data(catalog), "entries_count": entries_count}
+                )
             return self.success(data=data)
 
     @auth_or_token
@@ -338,7 +359,8 @@ class SpatialCatalogHandler(BaseHandler):
         """
         async with self.AsyncSession() as session:
             stmt = SpatialCatalog.select(session.user_or_token, mode="delete").where(
-                SpatialCatalog.id == catalog_id
+                SpatialCatalog.id == catalog_id,
+                SpatialCatalog.kind == "footprint",
             )
             catalog = await session.scalar(stmt)
             if catalog is None:

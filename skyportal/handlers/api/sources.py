@@ -2161,29 +2161,32 @@ async def get_sources(
                 )
             try:
                 # first try to find the catalog
-                entry_name = await session.scalar(
-                    SpatialCatalogEntry.select(
-                        session.user_or_token,
-                        columns=[SpatialCatalogEntry.entry_name],
-                    ).where(
-                        sa.func.lower(SpatialCatalogEntry.entry_name)
-                        == str(spatial_catalog_entry_name).strip().lower(),
-                        SpatialCatalogEntry.catalog.has(
-                            sa.func.lower(SpatialCatalog.catalog_name)
-                            == str(spatial_catalog_name).strip().lower()
-                        ),
+                entry = (
+                    await session.execute(
+                        SpatialCatalogEntry.select(
+                            session.user_or_token,
+                            columns=[
+                                SpatialCatalogEntry.catalog_id,
+                                SpatialCatalogEntry.entry_name,
+                            ],
+                        ).where(
+                            sa.func.lower(SpatialCatalogEntry.entry_name)
+                            == str(spatial_catalog_entry_name).strip().lower(),
+                            SpatialCatalogEntry.catalog.has(
+                                sa.func.lower(SpatialCatalog.catalog_name)
+                                == str(spatial_catalog_name).strip().lower(),
+                            ),
+                        )
                     )
-                )
-                if entry_name is None:
+                ).first()
+                if entry is None:
                     raise ValueError("spatial catalog entry not found")
 
-                # the tiles store the name with its original case
-                query_params.append(
-                    bindparam(
-                        "spatial_catalog_entry_name",
-                        value=entry_name,
-                        type_=sa.String,
-                    )
+                query_params.extend(
+                    [
+                        bindparam("spatial_catalog_id", value=entry.catalog_id),
+                        bindparam("spatial_catalog_entry_name", value=entry.entry_name),
+                    ]
                 )
 
                 # this query will be very similar to the localization query, as the catalog entries are made of tiles
@@ -2192,7 +2195,8 @@ async def get_sources(
                     EXISTS (
                         SELECT id
                         FROM spatial_catalog_entriess
-                        WHERE spatial_catalog_entriess.entry_name = :spatial_catalog_entry_name
+                        WHERE spatial_catalog_entriess.catalog_id = :spatial_catalog_id
+                        AND spatial_catalog_entriess.entry_name = :spatial_catalog_entry_name
                         AND spatial_catalog_entriess.healpix @> objs.healpix
                     )
                     """

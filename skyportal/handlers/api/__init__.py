@@ -166,6 +166,11 @@ from .instrument_log import (
 )
 from .invalid import InvalidEndpointHandler
 from .invitations import InvitationHandler
+from .local_catalog import (
+    LocalCatalogCrossmatchHandler,
+    LocalCatalogHandler,
+    LocalCatalogResolveHandler,
+)
 from .metrics import MetricsHandler
 from .mmadetector import (
     MMADetectorHandler,

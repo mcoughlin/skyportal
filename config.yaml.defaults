@@ -631,7 +631,7 @@ app:
           url: /galaxies
           anonymous_ok: true
 
-        - name: Spatial Catalogs
+        - name: Catalogs
           icon: Map
           url: /spatial_catalogs
           anonymous_ok: true

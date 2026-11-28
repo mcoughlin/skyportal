@@ -1422,6 +1422,40 @@ async def get_broker_alert_photometry(handler, args):
 
 
 @tool(
+    "resolve_catalog_object",
+    "Look up an astronomical object by name or alias in SkyPortal's local catalogs, "
+    "including SIMBAD where installed. Return canonical names and coordinates when "
+    "available. Multiple matches may refer to different objects.",
+    {
+        "name": _prop("string", "Object name or catalog identifier, for example M31."),
+        "limit": _prop("integer", "Maximum results, from 1 to 100."),
+    },
+    required=("name",),
+)
+async def resolve_catalog_object(handler, args):
+    return await handler.api("GET", "/api/catalogs/resolve", query=args)
+
+
+@tool(
+    "crossmatch_catalogs",
+    "Search SkyPortal's local catalogs at a position. Point matches include the "
+    "angular separation and footprint matches contain the requested position. "
+    "Proximity alone does not establish an identification.",
+    {
+        "ra": _prop("number", "RA in degrees."),
+        "dec": _prop("number", "Declination in degrees."),
+        "radius_arcsec": _prop(
+            "number", "Point search radius in arcseconds (default 30)."
+        ),
+        "limit": _prop("integer", "Maximum results, from 1 to 100."),
+    },
+    required=("ra", "dec"),
+)
+async def crossmatch_catalogs(handler, args):
+    return await handler.api("GET", "/api/catalogs/crossmatch", query=args)
+
+
+@tool(
     "crossmatch_broker_catalogs",
     "Cross-match a position against the broker's reference catalogs (Gaia, "
     "PS1, AllWISE and the like), returning the matches keyed by catalog. What "

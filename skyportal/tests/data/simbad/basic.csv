@@ -1,0 +1,4 @@
+oid,main_id,ra,dec,otype,rvz_redshift,coo_bibcode
+101,M  31,10.6847083333,41.26875,G,-0.001001,2006AJ....131.1163S
+102,Example M31 neighbor,10.686,41.26875,Star,,
+103,Example unlocated entry,,,?,,

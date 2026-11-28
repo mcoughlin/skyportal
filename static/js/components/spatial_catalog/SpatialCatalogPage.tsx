@@ -17,6 +17,7 @@ import ListPanelPage from "../ListPanelPage";
 import SourceTable from "../source/SourceTable";
 import SpatialCatalogTable from "./SpatialCatalogTable";
 import NewSpatialCatalog from "./NewSpatialCatalog";
+import CatalogSearch from "./CatalogSearch";
 
 interface SpatialCatalogSourcesArgs {
   catalogName: string;
@@ -118,6 +119,7 @@ const SpatialCatalogPage = () => {
 
   return (
     <>
+      <CatalogSearch />
       <ListPanelPage
         name="Spatial Catalog"
         permission="System admin"

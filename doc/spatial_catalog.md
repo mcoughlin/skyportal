@@ -1,8 +1,51 @@
-# Spatial Catalogs
+# Catalogs
 
-For catalogs where source location uncertainties are large enough that the Source class is insufficient, SkyPortal has the concept of `SpatialCatalog`s. These catalogs enable cross-matching between sources and objects with spatial extent, such as gamma-ray source catalogs.
+The Catalogs page searches locally available catalogs by object name or sky position.
+It includes Galaxy catalogs, catalogs with cone or ellipse footprints, and any imported
+SIMBAD release. Existing galaxy targeting, host associations, and footprint uploads use
+their original pages and API endpoints.
 
-Catalogs can be uploaded through the API or on the Source Catalogs web page. Files must have the columns name, ra, dec, where name is the source catalog entry (must be unique), ra and dec are right ascension and declination in degrees. They must also either contain (i) for an ellipse, amaj, amin, and phi, where amaj, amin, and phi are the major and minor ellipse elements with phi the corresponding angle or (ii) for a cone, radius, where radius is the radius of the cone in degrees.
+## Searching catalogs
+
+- `GET /api/catalogs` lists catalogs the caller can read and provides their IDs.
+- `GET /api/catalogs/resolve?name=M31` finds entries by name or alias. The
+  optional `catalog` parameter restricts the search to one ID from the list.
+- `GET /api/catalogs/crossmatch?ra=10.6847&dec=41.26875&radius_arcsec=30`
+  finds nearby points and footprints containing the supplied position. Coordinates
+  are in degrees. The radius applies to point matches. Results report the match
+  type and give angular separations in arcseconds for point matches.
+
+Searches accept `limit` from 1 to 100 and return a `truncated` flag. The source
+page uses the local crossmatch endpoint alongside its broker results. Assistant
+calls use the same access checks through the `resolve_catalog_object` and
+`crossmatch_catalogs` MCP tools.
+
+## Importing SIMBAD
+
+Apply the database migrations first. Use a matched pair of CSV exports from the
+same CDS/SIMBAD snapshot. The `basic` CSV requires `oid`, `main_id`, `ra`,
+and `dec` and also accepts `otype`, `rvz_redshift`, and `coo_bibcode`. Use
+blank values for missing coordinates. The `ident` CSV requires `oidref` and
+`id`.
+
+```sh
+python -m tools.import_simbad --config config.yaml \
+  --release 2026-10-26 --basic basic.csv --ident ident.csv
+```
+
+The initial import defaults to the site's public group. Pass `--group-id`
+once per group to restrict access. The import validates coordinate pairs,
+object IDs, and alias references before publishing the release. Releases are
+immutable. Re-running the command with a loaded release reactivates it. Older
+releases stay available to roll back. Account for retained releases when
+provisioning database storage.
+
+## Uploading catalog footprints
+
+Use the footprint upload on the Catalogs page or the existing
+`/api/spatial_catalog` endpoints. The file requires `name`, `ra`, and `dec`.
+Names are unique within a catalog. Coordinates are in degrees. For an ellipse,
+include `amaj`, `amin`, and `phi`. For a cone include `radius` in degrees.
 
 ## Creating a spatial catalog file
 

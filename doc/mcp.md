@@ -106,6 +106,17 @@ also stated in the server's `instructions`:
 `GET /api/brokers` returns each broker's `altdata`, which holds its Kafka
 credentials, and none of that reaches the model.
 
+## Local catalog searches
+
+| Tool | Purpose |
+| --- | --- |
+| `resolve_catalog_object` | Find a canonical name and coordinates by name or alias, including SIMBAD where installed |
+| `crossmatch_catalogs` | Search local point catalogs and footprints at a position |
+
+Both tools use the local catalog API with the caller’s permissions. A point
+match returns its angular separation. A footprint match contains the requested
+position. A nearby point does not establish an identification.
+
 ## Broker data
 
 Four tools read the alert stream itself, rather than the filters that run on

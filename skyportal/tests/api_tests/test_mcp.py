@@ -163,6 +163,8 @@ def test_mcp_tools_list(view_only_token):
         "get_broker_alerts",
         "get_broker_alert_photometry",
         "crossmatch_broker_catalogs",
+        "crossmatch_catalogs",
+        "resolve_catalog_object",
     }
     tools = {t["name"]: t for t in result["tools"]}
     for t in tools.values():
